@@ -1,4 +1,5 @@
 Hello World!!
+<button id="load" onClick="loadAudio()">load!!</button>
 <button id="btn">play!!</button>
 
 <script>
@@ -7,16 +8,16 @@ Hello World!!
     var buffer;
 
     // Audio 用の buffer を読み込む
-    var getAudioBuffer = function(url, fn) {
+    var getAudioBuffer = function (url, fn) {
         var req = new XMLHttpRequest();
         // array buffer を指定
         req.responseType = 'arraybuffer';
 
-        req.onreadystatechange = function() {
+        req.onreadystatechange = function () {
             if (req.readyState === 4) {
                 if (req.status === 0 || req.status === 200) {
                     // array buffer を audio buffer に変換
-                    context.decodeAudioData(req.response, function(buffer) {
+                    context.decodeAudioData(req.response, function (buffer) {
                         // コールバックを実行
                         fn(buffer);
                     });
@@ -28,8 +29,24 @@ Hello World!!
         req.send('');
     };
 
+    function loadAudio() {
+        getAudioBuffer("/<%= @file_name %>.mp3", function (g_buffer) {
+            // 読み込み完了後にボタンにクリックイベントを登録
+            buffer = g_buffer;
+            console.log('read');
+
+            var btn = document.getElementById('btn');
+
+            btn.onclick = function () {
+                // サウンドを再生
+                App.playSound();
+            };
+        });
+    }
+
+
     // サウンドを再生
-    App.playSound = function() {
+    App.playSound = function () {
         console.log("sound_play");
         // source を作成
         var source = context.createBufferSource();
@@ -42,19 +59,9 @@ Hello World!!
     };
 
     // main
-    window.onload = function() {
+    window.onload = function () {
+        var load_btn = document.getElementById('load');
         // サウンドを読み込む
-        getAudioBuffer("/<%= @file_name %>.mp3", function(g_buffer) {
-            // 読み込み完了後にボタンにクリックイベントを登録
-            buffer = g_buffer;
-            console.log('read');
-
-            var btn = document.getElementById('btn');
-
-            btn.onclick = function() {
-                // サウンドを再生
-                App.playSound();
-            };
-        });
+//        load_btn.onclick = loadAudio();
     };
 </script>
