@@ -1,6 +1,6 @@
 Hello World!!
 <button id="load" onClick="loadAudio()">load!!</button>
-<button id="btn">play!!</button>
+<button id="btn" onClick="App.playSound()">play!!</button>
 
 <script>
     window.AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -35,12 +35,12 @@ Hello World!!
             buffer = g_buffer;
             console.log('read');
 
-            var btn = document.getElementById('btn');
+//            var btn = document.getElementById('btn');
 
-            btn.onclick = function () {
-                // サウンドを再生
-                App.playSound();
-            };
+//            btn.onclick = function () {
+//                // サウンドを再生
+//                App.playSound();
+//            };
         });
     }
 
