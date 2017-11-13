@@ -29,7 +29,7 @@ Hello World!!
     };
 
     // サウンドを再生
-    var playSound = function() {
+    App.playSound = function() {
         console.log("sound_play");
         // source を作成
         var source = context.createBufferSource();
@@ -53,7 +53,7 @@ Hello World!!
 
             btn.onclick = function() {
                 // サウンドを再生
-                playSound();
+                App.playSound();
             };
         });
     };
