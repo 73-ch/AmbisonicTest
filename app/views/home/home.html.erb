@@ -1,6 +1,6 @@
 Hello World!!
 <button id="load" onClick="loadAudio()">load!!</button>
-<button id="btn" onClick="App.playSound()">play!!</button>
+<button id="btn" onClick="playSound()">play!!</button>
 
 <script>
     window.AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -47,6 +47,10 @@ Hello World!!
 
     // サウンドを再生
     App.playSound = function () {
+        playSound();
+    };
+
+    var playSound = function () {
         console.log("sound_play");
         // source を作成
         var source = context.createBufferSource();
