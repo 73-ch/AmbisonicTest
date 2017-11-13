@@ -1,48 +1,21 @@
 Hello World!!
-<button id="load" onClick="loadAudio()">load!!</button>
+<button id="load" onClick="getAudioBuffer()">load!!</button>
 <button id="btn" onClick="playSound()">play!!</button>
 
 <script>
-    window.AudioContext = window.AudioContext || window.webkitAudioContext;
-    var context = new AudioContext();
     var buffer;
+    var req;
+
 
     // Audio 用の buffer を読み込む
-    var getAudioBuffer = function (url, fn) {
-        var req = new XMLHttpRequest();
+    var getAudioBuffer = function () {
+        req = new XMLHttpRequest();
         // array buffer を指定
         req.responseType = 'arraybuffer';
 
-        req.onreadystatechange = function () {
-            if (req.readyState === 4) {
-                if (req.status === 0 || req.status === 200) {
-                    // array buffer を audio buffer に変換
-                    context.decodeAudioData(req.response, function (buffer) {
-                        // コールバックを実行
-                        fn(buffer);
-                    });
-                }
-            }
-        };
-
-        req.open('GET', url, true);
-        req.send('');
+        req.open('GET', "/<%= @file_name %>.mp3", true);
+        req.send();
     };
-
-    function loadAudio() {
-        getAudioBuffer("/<%= @file_name %>.mp3", function (g_buffer) {
-            // 読み込み完了後にボタンにクリックイベントを登録
-            buffer = g_buffer;
-            console.log('read');
-
-//            var btn = document.getElementById('btn');
-
-//            btn.onclick = function () {
-//                // サウンドを再生
-//                App.playSound();
-//            };
-        });
-    }
 
 
     // サウンドを再生
@@ -51,15 +24,19 @@ Hello World!!
     };
 
     var playSound = function () {
+        window.AudioContext = window.AudioContext || window.webkitAudioContext;
+        context = new AudioContext();
+
+        source = context.createBufferSource();
+
+        context.decodeAudioData(req.response, function (buffer) {
+            source.buffer = buffer;
+            source.loop = false;
+            source.connect(context.destination);
+            // 再生
+            source.start(0);
+        });
         console.log("sound_play");
-        // source を作成
-        var source = context.createBufferSource();
-        // buffer をセット
-        source.buffer = buffer;
-        // context に connect
-        source.connect(context.destination);
-        // 再生
-        source.start(0);
     };
 
     // main
