@@ -5,10 +5,11 @@ Hello World!!
 <button id="suspend" onClick="suspend()">suspend!!</button>
 <h2 id="state">Please load</h2>
 <h2 id="network-message">ready</h2>
+
+<button id="start" onclick="broadcast()">broadcast</button>
 <script>
     var buffer;
     var req;
-
     window.AudioContext = window.AudioContext || window.webkitAudioContext;
     var context = new AudioContext();
     var source = context.createBufferSource();
@@ -25,6 +26,10 @@ Hello World!!
         req.open('GET', "/<%= @file_name %>.mp3", true);
         req.send();
     };
+
+    function broadcast() {
+        App.ambient.start_signal();
+    }
 
 
     // サウンドを再生

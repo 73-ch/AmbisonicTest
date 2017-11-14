@@ -8,8 +8,8 @@ App.ambient = App.cable.subscriptions.create "AmbientChannel",
   received: (data) ->
     # Called when there's incoming data on the websocket for this channel
     console.log(data);
-#    if data["message"] == "start"
+    if data["message"] == "start"
+      App.playSound();
 
   start_signal: ->
     @perform 'start_signal'
-    App.playSound();
