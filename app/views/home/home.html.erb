@@ -1,10 +1,14 @@
 Hello World!!
 <button id="load" onClick="getAudioBuffer()">load!!</button>
-<button id="btn" onClick="playSound()">play!!</button>
+<button id="btn" onClick="initSound()">init!!</button>
 
 <script>
     var buffer;
     var req;
+
+    window.AudioContext = window.AudioContext || window.webkitAudioContext;
+    var context = new AudioContext();
+    var source = context.createBufferSource();
 
 
     // Audio 用の buffer を読み込む
@@ -20,21 +24,17 @@ Hello World!!
 
     // サウンドを再生
     App.playSound = function () {
-        playSound();
+        context.resume();
     };
 
-    var playSound = function () {
-        window.AudioContext = window.AudioContext || window.webkitAudioContext;
-        context = new AudioContext();
-
-        source = context.createBufferSource();
-
+    var initSound = function (){
         context.decodeAudioData(req.response, function (buffer) {
             source.buffer = buffer;
             source.loop = false;
             source.connect(context.destination);
             // 再生
             source.start(0);
+            context.suspend();
         });
         console.log("sound_play");
     };
