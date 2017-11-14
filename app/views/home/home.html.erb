@@ -4,6 +4,7 @@ Hello World!!
 <button id="resume" onClick="resume()">resume!!</button>
 <button id="suspend" onClick="suspend()">suspend!!</button>
 <h2 id="state">Please load</h2>
+<h2 id="network-message">ready</h2>
 <script>
     var buffer;
     var req;
@@ -12,6 +13,7 @@ Hello World!!
     var context = new AudioContext();
     var source = context.createBufferSource();
     var state;
+    var network_message;
 
 
     // Audio 用の buffer を読み込む
@@ -28,6 +30,7 @@ Hello World!!
     // サウンドを再生
     App.playSound = function () {
 //        initSound();
+        network_message.textContent = "received signal";
         resume();
     };
 
@@ -57,6 +60,7 @@ Hello World!!
     window.onload = function () {
         state = document.getElementById("state");
         var load_btn = document.getElementById('load');
+        network_message = document.getElementById('network-message');
         // サウンドを読み込む
 //        load_btn.onclick = loadAudio();
     };
