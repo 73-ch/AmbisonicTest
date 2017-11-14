@@ -1,7 +1,9 @@
 Hello World!!
 <button id="load" onClick="getAudioBuffer()">load!!</button>
 <button id="btn" onClick="initSound()">init!!</button>
-
+<button id="resume" onClick="resume()">resume!!</button>
+<button id="suspend" onClick="suspend()">suspend!!</button>
+<h2 id="state">Please load</h2>
 <script>
     var buffer;
     var req;
@@ -9,6 +11,7 @@ Hello World!!
     window.AudioContext = window.AudioContext || window.webkitAudioContext;
     var context = new AudioContext();
     var source = context.createBufferSource();
+    var state;
 
 
     // Audio 用の buffer を読み込む
@@ -24,7 +27,8 @@ Hello World!!
 
     // サウンドを再生
     App.playSound = function () {
-        context.resume();
+//        initSound();
+        resume();
     };
 
     var initSound = function (){
@@ -35,12 +39,23 @@ Hello World!!
             // 再生
             source.start(0);
             context.suspend();
+            state.textContent = "ready";
         });
-        console.log("sound_play");
+    };
+
+    var resume = function () {
+        context.resume();
+        state.textContent = "playing";
+    };
+
+    var suspend = function () {
+        context.suspend();
+        state.textContent = "stop";
     };
 
     // main
     window.onload = function () {
+        state = document.getElementById("state");
         var load_btn = document.getElementById('load');
         // サウンドを読み込む
 //        load_btn.onclick = loadAudio();
