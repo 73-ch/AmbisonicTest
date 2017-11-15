@@ -3,6 +3,7 @@ Hello World!!
 <button id="btn" onClick="initSound()">init!!</button>
 <button id="resume" onClick="resume()">resume!!</button>
 <button id="suspend" onClick="suspend()">suspend!!</button>
+<button id="adjustment" onClick="adjustment()">adjustment</button>
 <h2 id="state">Please load</h2>
 <h2 id="network-message">ready</h2>
 
@@ -45,13 +46,13 @@ Hello World!!
         context.decodeAudioData(req.response, function (buffer) {
             source.buffer = buffer;
             source.loop = false;
+
+            source.connect(context.destination);
+            source.start(0);
+
+            context.suspend();
+            state.textContent = "ready";
         });
-
-        source.connect(context.destination);
-        source.start(0);
-
-        context.suspend();
-        state.textContent = "ready";
     };
 
     var resume = function () {
@@ -62,6 +63,11 @@ Hello World!!
     var suspend = function () {
         context.suspend();
         state.textContent = "stop";
+    };
+
+    var adjustment = function () {
+        context.resume();
+        context.suspend();
     };
 
     // main
