@@ -1,13 +1,17 @@
-Hello World!!
-<button id="load" onClick="getAudioBuffer()">load!!</button>
-<button id="btn" onClick="initSound()">init!!</button>
-<button id="resume" onClick="resume()">resume!!</button>
-<button id="suspend" onClick="suspend()">suspend!!</button>
-<button id="adjustment" onClick="adjustment()">adjustment</button>
+<h1>Ambisonic Test</h1>
+<div id="control">
+  <button id="load" onClick="getAudioBuffer()">load!!</button>
+  <button id="btn" onClick="initSound()">init!!</button>
+  <button id="resume" onClick="resume()">resume!!</button>
+  <button id="suspend" onClick="suspend()">suspend!!</button>
+</div>
 <h2 id="state">Please load</h2>
 <h2 id="network-message">ready</h2>
+<h2 id="time"></h2>
+
 
 <button id="start" onclick="broadcast()">broadcast</button>
+
 <script>
     var buffer;
     var req;
@@ -16,6 +20,7 @@ Hello World!!
     var source = context.createBufferSource();
     var state;
     var network_message;
+    var time;
 
 
     // Audio 用の buffer を読み込む
@@ -40,7 +45,7 @@ Hello World!!
         resume();
     };
 
-    var initSound = function (){
+    var initSound = function () {
         context = new AudioContext();
         source = context.createBufferSource();
         context.decodeAudioData(req.response, function (buffer) {
@@ -65,9 +70,8 @@ Hello World!!
         state.textContent = "stop";
     };
 
-    var adjustment = function () {
-        context.resume();
-        context.suspend();
+    var setTime = function () {
+        time.textContent = Date.now();
     };
 
     // main
@@ -75,7 +79,18 @@ Hello World!!
         state = document.getElementById("state");
         var load_btn = document.getElementById('load');
         network_message = document.getElementById('network-message');
+        time = document.getElementById("time");
         // サウンドを読み込む
 //        load_btn.onclick = loadAudio();
+
+        setInterval(setTime, 5);
     };
 </script>
+<style>
+  #control {
+    width: 100vw;
+  }
+    #control button {
+      width: 20%;
+    }
+</style>
