@@ -10,4 +10,8 @@ class AmbientChannel < ApplicationCable::Channel
   def start_signal
     ActionCable.server.broadcast "ambient_channel", message: "start"
   end
+
+  def change_color(color)
+    ActionCable.server.broadcast "ambient_channel", message: "change_color", color: color
+  end
 end

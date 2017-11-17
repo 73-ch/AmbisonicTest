@@ -1,0 +1,49 @@
+r<input id="r" type="range" min="0" max="1" step="0.01" onmousedown="colorchanged(0)" onmouseup="colorfix(0)">
+g<input id="g" type="range" min="0" max="1" step="0.01" onmousedown="colorchanged(1)" onmouseup="colorfix(1)">
+b<input id="b" type="range" min="0" max="1" step="0.01" onmousedown="colorchanged(2)" onmouseup="colorfix(2)">
+
+<button id="start" onclick="broadcast()">broadcast</button>
+
+<script type="text/javascript" charset="utf-8">
+    var colors = [];
+    var click_flags = [false, false, false];
+    function broadcast() {
+        App.ambient.start_signal();
+    }
+
+    window.onload = function () {
+        colors[0] = document.getElementById("r");
+        colors[1] = document.getElementById("g");
+        colors[2] = document.getElementById("b");
+
+        r.onmouseup()
+    };
+
+    function colorchanged(type) {
+        click_flags[type] = true;
+    }
+
+    function colorfix(type) {
+        click_flags[type] = false;
+    }
+
+    r.onmousemove = function () {
+        if (!click_flags[0]) return;
+        change_color();
+    };
+
+    g.onmousemove = function () {
+        if (!click_flags[1]) return;
+        change_color();
+    };
+
+    b.onmousemove = function () {
+        if (!click_flags[2]) return;
+        change_color();
+    };
+
+    function change_color() {
+        console.log('change');
+        App.ambient.change_color(colors[0].value, colors[1].value, colors[2].value);
+    }
+</script>

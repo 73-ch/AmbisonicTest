@@ -4,4 +4,8 @@ Rails.application.routes.draw do
   mount ActionCable.server => '/cable'
 
   get "home/:file_name" => "home#home"
+
+  get "webgl" => "home#webgl"
+
+  get "control" => "home#control"
 end
