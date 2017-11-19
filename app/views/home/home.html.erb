@@ -85,7 +85,7 @@
 
 
     // サウンドを再生
-    App.playSound = function (g_time) {
+    function playSound(g_time) {
         console.log("g_time :" +  g_time.toString());
         network_message_html.textContent = "received signal";
         start_time = new Date(g_time);
@@ -96,7 +96,7 @@
         setTimeout(resume, parseInt(timer));
     };
 
-    var initSound = function () {
+    function initSound() {
         context = new AudioContext();
         source = context.createBufferSource();
         context.decodeAudioData(req.response, function (buffer) {
@@ -109,7 +109,7 @@
             context.suspend();
             state_html.textContent = "ready";
         });
-    };
+    }
 
     function initTime() {
         js_send_times[init_count] = new Date();
@@ -144,15 +144,15 @@
         state_html.textContent = "playing";
     }
 
-    var suspend = function () {
+    function suspend() {
         context.suspend();
         state_html.textContent = "stop";
-    };
+    }
 
-    var setTime = function () {
+    function setTime() {
         var cd = new Date(Date.now() - tolerance);
         c_time_html.textContent = cd.getHMSMS();
-    };
+    }
 
     // main
     window.onload = function () {
@@ -163,7 +163,7 @@
         tolerance_html = document.getElementById('tolerance');
 
         Date.prototype.getHMSMS = function () {
-            return this.getHours() + ":" + this.getMinutes() + ":" + this.getSeconds() + "." + ("0000" + this.getMilliseconds()).slice(-4);
+            return this.getHours() + ":" + this.getMinutes() + ":" + this.getSeconds() + "." + ("000" + this.getMilliseconds()).slice(-3);
         };
 
         for (var i = 0; i < 20; i++) {

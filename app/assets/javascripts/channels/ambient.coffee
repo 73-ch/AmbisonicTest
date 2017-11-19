@@ -11,15 +11,15 @@ App.ambient = App.cable.subscriptions.create "AmbientChannel",
 
     switch data["message"]
       when "start"
-        App.playSound(data["time"]);
+        playSound(data["time"]);
 
       when "change_color"
         console.log('read')
         changeColor(data.color.r, data.color.g, data.color.b)
-        if !typeof changeColor == "function"
-          changeColor(data.color.r, data.color.g, data.color.b)
-        else
-          console.log('n~~~')
+#        if !typeof changeColor == "function"
+#          changeColor(data.color.r, data.color.g, data.color.b)
+#        else
+#          console.log('n~~~')
       when "init_time"
         setInitialTime(data["initial_time"])
 
