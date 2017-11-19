@@ -5,22 +5,68 @@
   <button id="resume" onClick="resume()">resume!!</button>
   <button id="suspend" onClick="suspend()">suspend!!</button>
 </div>
-<h2 id="state">Please load</h2>
-<h2 id="network-message">ready</h2>
-<h2 id="time"></h2>
+<div id="info">
+  <div class="info_item">
+    audio state
+    <h2 id="audio-state">Please load</h2>
+  </div>
+  <div class="info_item">
+    network state
+    <h2 id="network-message">ready</h2>
+  </div>
+  <div class="info_item">
+    current_time
+    <h2 id="current-time"></h2>
+  </div>
+  <div class="info_item">
+    tolerance
+    <h2 id="tolerance"></h2>
+  </div>
+</div>
+
+<button id="init_time" onClick="initTime()">init time</button>
+
+<div id="server-time-wrapper">
+  <table id="init-time-table">
+    <thread>
+      <tr>
+        <th>send_time</th>
+        <th>receive_time</th>
+        <th>interval</th>
+        <th>server_time</th>
+        <th>tolerance</th>
+      </tr>
+    </thread>
+    <tbody>
+    </tbody>
+  </table>
+</div>
 
 
 <button id="start" onclick="broadcast()">broadcast</button>
 
 <script>
-    var buffer;
     var req;
     window.AudioContext = window.AudioContext || window.webkitAudioContext;
     var context = new AudioContext();
     var source = context.createBufferSource();
-    var state;
-    var network_message;
-    var time;
+    var state_html;
+    var network_message_html;
+    var c_time_html;
+    var time_table_html;
+    var tolerance_html;
+
+    var start_time;
+
+    var js_send_times = [];
+    var js_receive_times = [];
+    var server_times = [];
+    var tolerances = [];
+
+    var init_count = 0;
+
+    var tolerance_sum = 0;
+    var tolerance = 0;
 
 
     // Audio 用の buffer を読み込む
@@ -39,10 +85,15 @@
 
 
     // サウンドを再生
-    App.playSound = function () {
-//        initSound();
-        network_message.textContent = "received signal";
-        resume();
+    App.playSound = function (g_time) {
+        console.log("g_time :" +  g_time.toString());
+        network_message_html.textContent = "received signal";
+        start_time = new Date(g_time);
+
+        console.log("current_time : " + (new Date(Date.now() - tolerance)).toISOString());
+        var timer = start_time.getTime() - Date.now() - tolerance;
+        console.log(parseInt(timer));
+        setTimeout(resume, parseInt(timer));
     };
 
     var initSound = function () {
@@ -56,41 +107,83 @@
             source.start(0);
 
             context.suspend();
-            state.textContent = "ready";
+            state_html.textContent = "ready";
         });
     };
 
-    var resume = function () {
+    function initTime() {
+        js_send_times[init_count] = new Date();
+        App.ambient.init_time();
+    }
+
+    function setInitialTime(g_time) {
+        js_receive_times[init_count] = new Date();
+        var interval = js_receive_times[init_count] - js_send_times[init_count];
+        server_times[init_count] = new Date((new Date(g_time).getTime()) + interval / 2);
+        tolerances[init_count] = js_receive_times[init_count] - server_times[init_count];
+
+        var row = time_table_html.insertRow(-1);
+        row.insertCell(-1).innerHTML = js_send_times[init_count].getHMSMS();
+        row.insertCell(-1).innerHTML = js_receive_times[init_count].getHMSMS();
+        row.insertCell(-1).innerHTML = interval + "ms";
+        row.insertCell(-1).innerHTML = server_times[init_count].getHMSMS();
+        row.insertCell(-1).innerHTML = tolerances[init_count] + "ms";
+
+        if (init_count > 0) {
+            tolerance_sum += tolerances[init_count];
+            tolerance = tolerance_sum / (tolerances.length - 1);
+            tolerance_html.textContent = tolerance;
+        }
+        init_count++;
+
+
+    }
+
+    function resume() {
         context.resume();
-        state.textContent = "playing";
-    };
+        state_html.textContent = "playing";
+    }
 
     var suspend = function () {
         context.suspend();
-        state.textContent = "stop";
+        state_html.textContent = "stop";
     };
 
     var setTime = function () {
-        time.textContent = Date.now();
+        var cd = new Date(Date.now() - tolerance);
+        c_time_html.textContent = cd.getHMSMS();
     };
 
     // main
     window.onload = function () {
-        state = document.getElementById("state");
-        var load_btn = document.getElementById('load');
-        network_message = document.getElementById('network-message');
-        time = document.getElementById("time");
-        // サウンドを読み込む
-//        load_btn.onclick = loadAudio();
+        state_html = document.getElementById("audio-state");
+        network_message_html = document.getElementById('network-message');
+        c_time_html = document.getElementById("current-time");
+        time_table_html = document.getElementById('init-time-table');
+        tolerance_html = document.getElementById('tolerance');
+
+        Date.prototype.getHMSMS = function () {
+            return this.getHours() + ":" + this.getMinutes() + ":" + this.getSeconds() + "." + ("0000" + this.getMilliseconds()).slice(-4);
+        };
+
+        for (var i = 0; i < 20; i++) {
+            setTimeout(initTime, i * 500);
+        }
 
         setInterval(setTime, 5);
     };
 </script>
 <style>
-  #control {
-    width: 100vw;
+  button {
+    width: 75px;
+    height: 30px;
   }
-    #control button {
-      width: 20%;
-    }
+
+  #info {
+    display: flex;
+  }
+
+  .info_item {
+    margin: 10px;
+  }
 </style>

@@ -8,6 +8,10 @@ class HomeController < ApplicationController
   end
 
   def control
+
+  end
+
+  def date
     
   end
 end

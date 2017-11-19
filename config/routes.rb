@@ -8,4 +8,6 @@ Rails.application.routes.draw do
   get "webgl" => "home#webgl"
 
   get "control" => "home#control"
+
+  get "date" => "home#date"
 end

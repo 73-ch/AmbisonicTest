@@ -8,15 +8,24 @@ App.ambient = App.cable.subscriptions.create "AmbientChannel",
   received: (data) ->
     # Called when there's incoming data on the websocket for this channel
     console.log(data)
-    if data["message"] == "start"
-      App.playSound()
-    else if data["message"] == "change_color"
-      console.log('read')
-      changeColor(data.color.r, data.color.g, data.color.b)
-      if !typeof changeColor == "function"
+
+    switch data["message"]
+      when "start"
+        App.playSound(data["time"]);
+
+      when "change_color"
+        console.log('read')
         changeColor(data.color.r, data.color.g, data.color.b)
-      else
-        console.log('n~~~')
+        if !typeof changeColor == "function"
+          changeColor(data.color.r, data.color.g, data.color.b)
+        else
+          console.log('n~~~')
+      when "init_time"
+        setInitialTime(data["initial_time"])
+
+
+  init_time: ->
+    @perform 'init_time'
 
   start_signal: ->
     @perform 'start_signal'
