@@ -46,27 +46,36 @@
 <button id="start" onclick="broadcast()">broadcast</button>
 
 <script>
+  var key = <%= @file_name %>;
     var req;
     window.AudioContext = window.AudioContext || window.webkitAudioContext;
     var context = new AudioContext();
-    var source = context.createBufferSource();
+    var source;
     var state_html;
     var network_message_html;
     var c_time_html;
     var time_table_html;
     var tolerance_html;
 
+    var worker;
+
     var start_time;
 
+    var init_time = 0;
     var js_send_times = [];
     var js_receive_times = [];
     var server_times = [];
     var tolerances = [];
 
-    var init_count = 0;
+    var init_send_count = 0;
+    var init_receive_count = 0;
 
     var tolerance_sum = 0;
     var tolerance = 0;
+    
+    function getTime() {
+        return init_time + context.currentTime;
+    }
 
 
     // Audio 用の buffer を読み込む
@@ -86,55 +95,69 @@
 
     // サウンドを再生
     function playSound(g_time) {
-        console.log("g_time :" +  g_time.toString());
-        network_message_html.textContent = "received signal";
-        start_time = new Date(g_time);
+        console.log(getTime());
+        console.log(g_time);
+        console.log(tolerance);
+        var timer = g_time - getTime() - tolerance;
+        source.start(g_time - init_time + tolerance);
+//        worker.postMessage({message: "start", time: timer});
 
-        console.log("current_time : " + (new Date(Date.now() - tolerance)).toISOString());
-        var timer = start_time.getTime() - Date.now() - tolerance;
-        console.log(parseInt(timer));
-        setTimeout(resume, parseInt(timer));
-    };
+
+//        console.log("g_time :" +  g_time.toString());
+        network_message_html.textContent = "received signal";
+        start_time = g_time;
+        console.log("current_time : " + (getTime() - tolerance));
+        console.log(parseFloat(timer));
+
+//        setTimeout(resume, parseInt(timer));
+    }
 
     function initSound() {
+        init_time = new Date().getTime() / 1000;
         context = new AudioContext();
+//        context = new AudioContext();
+        context.createBufferSource().start(0);
         source = context.createBufferSource();
         context.decodeAudioData(req.response, function (buffer) {
             source.buffer = buffer;
-            source.loop = false;
+            source.loop = true;
 
             source.connect(context.destination);
-            source.start(0);
+//            source.start(0);
 
-            context.suspend();
+//            context.suspend();
             state_html.textContent = "ready";
+            for (var i = 0; i < 20; i++) {
+                setTimeout(initTime, i * 500);
+            }
         });
     }
 
     function initTime() {
-        js_send_times[init_count] = new Date();
-        App.ambient.init_time();
+        js_send_times[init_send_count] = getTime();
+        App.ambient.init_time({"key": key});
+        init_send_count++;
     }
 
     function setInitialTime(g_time) {
-        js_receive_times[init_count] = new Date();
-        var interval = js_receive_times[init_count] - js_send_times[init_count];
-        server_times[init_count] = new Date((new Date(g_time).getTime()) + interval / 2);
-        tolerances[init_count] = js_receive_times[init_count] - server_times[init_count];
+        js_receive_times[init_receive_count] = getTime();
+        var interval = js_receive_times[init_receive_count] - js_send_times[init_receive_count];
+        server_times[init_receive_count] = parseFloat(g_time) + interval / 2.0;
+        tolerances[init_receive_count] = js_receive_times[init_receive_count] - server_times[init_receive_count];
 
         var row = time_table_html.insertRow(-1);
-        row.insertCell(-1).innerHTML = js_send_times[init_count].getHMSMS();
-        row.insertCell(-1).innerHTML = js_receive_times[init_count].getHMSMS();
+        row.insertCell(-1).innerHTML = js_send_times[init_receive_count];
+        row.insertCell(-1).innerHTML = js_receive_times[init_receive_count];
         row.insertCell(-1).innerHTML = interval + "ms";
-        row.insertCell(-1).innerHTML = server_times[init_count].getHMSMS();
-        row.insertCell(-1).innerHTML = tolerances[init_count] + "ms";
+        row.insertCell(-1).innerHTML = server_times[init_receive_count];
+        row.insertCell(-1).innerHTML = tolerances[init_receive_count] + "ms";
 
-        if (init_count > 0) {
-            tolerance_sum += tolerances[init_count];
+        if (init_receive_count > 0) {
+            tolerance_sum += tolerances[init_receive_count];
             tolerance = tolerance_sum / (tolerances.length - 1);
             tolerance_html.textContent = tolerance;
         }
-        init_count++;
+        init_receive_count++;
 
 
     }
@@ -150,8 +173,7 @@
     }
 
     function setTime() {
-        var cd = new Date(Date.now() - tolerance);
-        c_time_html.textContent = cd.getHMSMS();
+        c_time_html.textContent = getTime() - tolerance;
     }
 
     // main
@@ -162,15 +184,17 @@
         time_table_html = document.getElementById('init-time-table');
         tolerance_html = document.getElementById('tolerance');
 
-        Date.prototype.getHMSMS = function () {
-            return this.getHours() + ":" + this.getMinutes() + ":" + this.getSeconds() + "." + ("000" + this.getMilliseconds()).slice(-3);
-        };
+//        worker = new Worker("<%= javascript_path "worker" %>");
+//
+//        worker.onmessage = function (e) {
+//            if (e.data == "start_cue") {
+//                source.start(0);
+//            }
+//        };
 
-        for (var i = 0; i < 20; i++) {
-            setTimeout(initTime, i * 500);
-        }
+//        source = context.createBufferSource();
 
-        setInterval(setTime, 5);
+        setInterval(setTime, 100);
     };
 </script>
 <style>

@@ -21,11 +21,13 @@ App.ambient = App.cable.subscriptions.create "AmbientChannel",
 #        else
 #          console.log('n~~~')
       when "init_time"
+        if key != data.key
+          return
         setInitialTime(data["initial_time"])
 
 
-  init_time: ->
-    @perform 'init_time'
+  init_time: (data) ->
+    @perform 'init_time', key: data.key
 
   start_signal: ->
     @perform 'start_signal'

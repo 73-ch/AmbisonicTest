@@ -7,13 +7,13 @@ class AmbientChannel < ApplicationCable::Channel
     # Any cleanup needed when channel is unsubscribed
   end
 
-  def init_time
-    initial_time = DateTime.now()
-    ActionCable.server.broadcast "ambient_channel", message: :init_time, initial_time: initial_time
+  def init_time(data)
+    initial_time = "%10.6f" % Time.current.to_f
+    ActionCable.server.broadcast "ambient_channel", message: :init_time, initial_time: initial_time, key: data['key']
   end
 
   def start_signal
-    time = DateTime.now() + 5.second
+    time = ("%10.6f" % Time.current.to_f).to_f + 5.0
     ActionCable.server.broadcast "ambient_channel", message: "start", time: time
   end
 
