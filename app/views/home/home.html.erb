@@ -74,9 +74,24 @@
     var tolerance = 0;
 
     const OFF_SET= 1529100000;
-    
-    function getTime() {
-        return init_time + performance.now();
+
+    var ua = navigator.userAgent.toLowerCase();
+    var use_HRT = false;
+
+    if(!(ua.match(/ios|iphone|ipad|ipod|androd/)) && ua.match(/chrome|firefox/)) {
+        use_HRT = true;
+    }
+
+    var getTime;
+
+    if (use_HRT) {
+        getTime = function () {
+            return init_time + performance.now();
+        }
+    } else {
+        getTime = function () {
+            return init_time + context.currentTime * 1000;
+        }
     }
 
 
@@ -115,9 +130,7 @@
     }
 
     function initSound() {
-        init_time = new Date().getTime() - OFF_SET*1000;
         context = new AudioContext();
-//        context = new AudioContext();
         context.createBufferSource().start(0);
         source = context.createBufferSource();
         console.log(req);
@@ -130,9 +143,13 @@
 
 //            context.suspend();
             state_html.textContent = "ready";
-            for (var i = 0; i < 20; i++) {
-                setTimeout(initTime, i * 200);
-            }
+//            for (var i = 0; i < 20; i++) {
+//                setTimeout(initTime, i * 200);
+//            }
+            init_time = new Date().getTime() - OFF_SET*1000;
+            if (use_HRT) init_time -= performance.now();
+            initTime();
+            setInterval(initTime, 2000);
         });
     }
 
@@ -163,6 +180,8 @@
             tolerance_html.textContent = tolerance;
         }
         init_receive_count++;
+        performance.clearMarks();
+        if (performance.getEntries().length >= 100)performance.clearMeasures();
     }
 
     function insertTable(i) {
