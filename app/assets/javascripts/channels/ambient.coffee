@@ -21,6 +21,7 @@ App.ambient = App.cable.subscriptions.create "AmbientChannel",
 #        else
 #          console.log('n~~~')
       when "init_time"
+        performance.mark('receive' + init_receive_count);
         if key != data.key
           return
         setInitialTime(data["initial_time"])

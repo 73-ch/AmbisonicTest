@@ -72,9 +72,11 @@
 
     var tolerance_sum = 0;
     var tolerance = 0;
+
+    const OFF_SET= 1529100000;
     
     function getTime() {
-        return init_time + context.currentTime;
+        return init_time + performance.now();
     }
 
 
@@ -113,11 +115,12 @@
     }
 
     function initSound() {
-        init_time = new Date().getTime() / 1000;
+        init_time = new Date().getTime() - OFF_SET*1000;
         context = new AudioContext();
 //        context = new AudioContext();
         context.createBufferSource().start(0);
         source = context.createBufferSource();
+        console.log(req);
         context.decodeAudioData(req.response, function (buffer) {
             source.buffer = buffer;
             source.loop = true;
@@ -128,21 +131,23 @@
 //            context.suspend();
             state_html.textContent = "ready";
             for (var i = 0; i < 20; i++) {
-                setTimeout(initTime, i * 500);
+                setTimeout(initTime, i * 200);
             }
         });
     }
 
     function initTime() {
         js_send_times[init_send_count] = getTime();
+        performance.mark('send' + init_send_count);
         App.ambient.init_time({"key": key});
         init_send_count++;
     }
 
     function setInitialTime(g_time) {
         js_receive_times[init_receive_count] = getTime();
-        var interval = js_receive_times[init_receive_count] - js_send_times[init_receive_count];
-        server_times[init_receive_count] = parseFloat(g_time) + interval / 2.0;
+        performance.measure("interval"+init_receive_count, "send"+init_receive_count, "receive"+init_receive_count);
+        var interval = performance.getEntriesByName("interval"+init_receive_count)[0].duration;
+        server_times[init_receive_count] = parseFloat(g_time)*1000.+ interval / 2.0;
         tolerances[init_receive_count] = js_receive_times[init_receive_count] - server_times[init_receive_count];
 
         var row = time_table_html.insertRow(-1);
@@ -158,7 +163,9 @@
             tolerance_html.textContent = tolerance;
         }
         init_receive_count++;
+    }
 
+    function insertTable(i) {
 
     }
 
