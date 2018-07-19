@@ -7,7 +7,7 @@
             var endTime = new Date().getTime();
             console.log("latency: " + (endTime - sendTime) / 2 + "ms");
             var fixedTime = parseInt(timeobj.st * 1000 + (endTime - sendTime) / 2, 10);
-            var localTime = new Date().getTime()
+            var localTime = new Date().getTime();
             var offset = fixedTime - localTime;
             console.log("fixedTime: " + fixedTime);
             console.log("localTime: " + localTime);

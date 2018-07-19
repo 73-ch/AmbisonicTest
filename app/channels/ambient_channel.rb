@@ -12,7 +12,11 @@ class AmbientChannel < ApplicationCable::Channel
   def init_time(data)
     time = Time.current
     initial_time = (time.to_f - OFF_SET).to_s.match(/.*\./).to_s + time.nsec.to_s
+    logger.info initial_time
     ActionCable.server.broadcast "ambient_channel", message: :init_time, initial_time: initial_time, key: data['key']
+    time = Time.current
+    initial_time = (time.to_f - OFF_SET).to_s.match(/.*\./).to_s + time.nsec.to_s
+    logger.info initial_time
   end
 
   def start_signal
